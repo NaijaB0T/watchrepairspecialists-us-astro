@@ -1,0 +1,93 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/components/ui/card';
+import specialistsDataRaw from '../../data/specialists_enriched.json';
+import { Input } from '@/components/components/ui/input';
+import { Button } from '@/components/components/ui/button';
+
+interface Specialist {
+  unique_id: string;
+  description: string;
+  source_url: string;
+  name: string;
+  website: string | null;
+  phone: string | null;
+  rating: number | null;
+  review_count: number | null;
+  image_url: string;
+  address: {
+    street_address: string;
+    city: string;
+    state: string;
+    postal_code: string | null;
+    country: string;
+  } | null;
+  google_maps_url: string | null;
+  nearby_specialists_ids: string[];
+  services?: string[];
+}
+
+const specialistsData = specialistsDataRaw as unknown as Record<string, Specialist>;
+const allSpecialists: Specialist[] = Object.values(specialistsData);
+ 
+const searchTerm = Astro.url.searchParams.get('q')?.toLowerCase().trim() || '';
+
+let filteredSpecialists = allSpecialists;
+
+if (searchTerm) {
+  filteredSpecialists = allSpecialists.filter(specialist => {
+    const name = specialist.name?.toLowerCase() || '';
+    const description = specialist.description?.toLowerCase() || '';
+    const city = specialist.address?.city?.toLowerCase() || '';
+    const state = specialist.address?.state?.toLowerCase() || '';
+    const postalCode = specialist.address?.postal_code?.toString().toLowerCase() || '';
+    const streetAddress = specialist.address?.street_address?.toLowerCase() || '';
+
+    return (
+      name.includes(searchTerm) ||
+      description.includes(searchTerm) ||
+      city.includes(searchTerm) ||
+      state.includes(searchTerm) ||
+      postalCode.includes(searchTerm) ||
+      streetAddress.includes(searchTerm)
+    );
+  });
+}
+
+const hasSearchResults = !!searchTerm;
+---
+
+<Layout title="Search Results">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl">Search Results</h1>
+      <p class="mt-4 text-lg text-muted-foreground">
+        {filteredSpecialists.length} specialists found matching your criteria for "{searchTerm}".
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {filteredSpecialists.map((specialist) => {
+        if (!specialist.address) {
+          return null;
+        }
+        return (
+          <a href={`/specialists/${specialist.unique_id}`} class="block rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+            <img src={specialist.image_url} alt={specialist.name} class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h2 class="text-2xl font-semibold mb-2 truncate">{specialist.name}</h2>
+              <p class="text-muted-foreground text-sm mb-1">
+                {specialist.address.city}, {specialist.address.state}
+              </p>
+            </div>
+          </a>
+        );
+      })}
+      {filteredSpecialists.length === 0 && (
+        <p class="text-center text-muted-foreground col-span-full">
+          No specialists found matching your criteria.
+        </p>
+      )}
+    </div>
+  </div>
+</Layout>

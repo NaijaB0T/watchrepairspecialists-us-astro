@@ -1,0 +1,41 @@
+---
+import { Input } from '@/components/components/ui/input';
+import { Button } from '@/components/components/ui/button';
+---
+
+<div class="flex w-full max-w-sm items-center space-x-2">
+  <Input
+    type="text"
+    id="search-input"
+    placeholder="Enter a city, state, or zip code"
+    className="flex-grow"
+  />
+  <Button
+    id="search-button"
+    type="submit"
+  >
+    Search
+  </Button>
+</div>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const searchButton = document.getElementById('search-button') as HTMLButtonElement;
+
+  function handleSearch() {
+    const searchTerm = searchInput.value.trim();
+    if (searchTerm) {
+      // This is a simplified search. A more robust implementation would
+      // query the data to find the correct state and city.
+      // For now, we'll just redirect to the specialists search page.
+      window.location.href = `/specialists?q=${encodeURIComponent(searchTerm)}`;
+    }
+  }
+
+  searchButton.addEventListener('click', handleSearch);
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  });
+</script>

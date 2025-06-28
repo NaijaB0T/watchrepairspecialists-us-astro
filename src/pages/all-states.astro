@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import specialistsDataRaw from '../data/specialists_enriched.json';
+
+interface Specialist {
+  address: {
+    state: string;
+  } | null;
+}
+
+const specialistsData = specialistsDataRaw as unknown as Record<string, Specialist>;
+
+const states = Array.from(
+  new Set(
+    Object.values(specialistsData)
+      .map(s => s.address?.state ? String(s.address.state) : null)
+      .filter(state => state !== null)
+  )
+).sort();
+---
+
+<Layout title="All States with Specialists">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl text-center">
+      All States with Specialists
+    </h1>
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {states.map(state => (
+        <a href={`/states/${state.toLowerCase().replace(/\s/g, '-')}`} class="block p-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:bg-muted/50 transition-colors">
+          <h3 class="text-xl font-semibold">{state}</h3>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>

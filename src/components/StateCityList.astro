@@ -1,0 +1,81 @@
+---
+interface Specialist {
+  unique_id: string;
+  source_url: string;
+  name: string;
+  website: string | null;
+  phone: string;
+  rating: number;
+  review_count: number;
+  image_url: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
+  google_maps_url: string;
+  nearby_specialists_ids: string[];
+}
+
+const specialistsData = (await import('../data/specialists_enriched.json')).default as unknown as Record<string, Specialist>;
+
+// Process the data to group by state and then by city
+const groupedSpecialists: { [state: string]: Set<string> } = {};
+
+for (const key in specialistsData) {
+  const specialist = specialistsData[key];
+  const state = specialist.address?.state;
+  const city = specialist.address?.city;
+
+  if (state && city) {
+    if (!groupedSpecialists[state]) {
+      groupedSpecialists[state] = new Set();
+    }
+    groupedSpecialists[state].add(city);
+  }
+}
+
+// Convert Sets to Arrays and sort cities
+const sortedStates = Object.keys(groupedSpecialists).sort();
+interface GroupedSpecialists {
+  [state: string]: string[];
+}
+
+const finalGroupedSpecialists: GroupedSpecialists = {};
+
+for (const state of sortedStates) {
+  finalGroupedSpecialists[state] = Array.from(groupedSpecialists[state]).sort() as string[];
+}
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  {Object.entries(finalGroupedSpecialists).map(([state, cities]) => (
+    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div class="p-6">
+        <h3 class="text-xl font-semibold">
+          <a href={`/states/${state.toLowerCase().replace(/\s/g, '-')}`} class="hover:underline">
+            {state}
+          </a>
+        </h3>
+        <ul class="mt-4 space-y-2">
+          {cities.slice(0, 5).map(city => (
+            <li>
+              <a href={`/states/${state.toLowerCase().replace(/\s/g, '-')}/${city.toLowerCase().replace(/\s/g, '-')}`} class="text-sm text-muted-foreground hover:text-foreground">
+                {city}
+              </a>
+            </li>
+          ))}
+          {cities.length > 5 && (
+            <li>
+              <a href={`/states/${state.toLowerCase().replace(/\s/g, '-')}`} class="text-sm font-medium text-primary hover:underline">
+                View all cities...
+              </a>
+            </li>
+          )}
+        </ul>
+      </div>
+    </div>
+  ))}
+</div>

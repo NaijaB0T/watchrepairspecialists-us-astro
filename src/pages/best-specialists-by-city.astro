@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StateCityList from '../components/StateCityList.astro';
+---
+
+<Layout title="Best Watch Repair Specialist By City - Watch Repair Specialists">
+  <main class="container mx-auto px-4 py-16">
+    <h1 class="text-4xl font-bold text-gray-900 mb-8">Best Watch Repair Specialist By City</h1>
+    <p class="text-lg text-gray-700 mb-8">
+      This page will feature a curated list of the best watch repair specialists in various cities across the United States.
+      Our selection is based on customer reviews, expertise, and range of services offered.
+    </p>
+    <p class="text-lg text-gray-700 mb-8">
+      Please select a city from the list below to find top-rated specialists in your area.
+    </p>
+
+    <StateCityList />
+  </main>
+</Layout>

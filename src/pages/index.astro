@@ -1,50 +1,66 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import Layout from '../layouts/Layout.astro';
+import SpecialistSearch from '../components/SpecialistSearch.astro';
+import StateCityList from '../components/StateCityList.astro';
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<Layout title="Watch Repair Specialists - Find Experts Near You">
+  <div class="py-16 md:py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl">
+        Find Trusted Watch Repair Specialists Near You
+      </h1>
+      <p class="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+        From simple battery replacements to complex mechanical restorations, we connect you with the best watch repair professionals in your area.
+      </p>
+      <div class="mt-8 max-w-md mx-auto">
+        <SpecialistSearch />
+      </div>
+    </div>
+  </div>
+
+  <div class="py-16 md:py-24 bg-muted/40">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold tracking-tight">How It Works</h2>
+        <p class="mt-4 text-lg text-muted-foreground">
+          Find the right specialist in just a few clicks.
+        </p>
+      </div>
+      <div class="mt-12 grid gap-8 md:grid-cols-3">
+        <div class="text-center">
+          <h3 class="text-xl font-semibold">1. Search</h3>
+          <p class="mt-2 text-muted-foreground">
+            Enter your city or browse by state to find specialists near you.
+          </p>
+        </div>
+        <div class="text-center">
+          <h3 class="text-xl font-semibold">2. Compare</h3>
+          <p class="mt-2 text-muted-foreground">
+            View detailed profiles, services offered, and customer reviews.
+          </p>
+        </div>
+        <div class="text-center">
+          <h3 class="text-xl font-semibold">3. Connect</h3>
+          <p class="mt-2 text-muted-foreground">
+            Contact the specialist of your choice directly to schedule a repair.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="py-16 md:py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold tracking-tight">Browse by Location</h2>
+        <p class="mt-4 text-lg text-muted-foreground">
+          Explore our directory of watch repair specialists by state and city.
+        </p>
+      </div>
+      <div class="mt-12">
+        <StateCityList />
+      </div>
+    </div>
+  </div>
+</Layout>

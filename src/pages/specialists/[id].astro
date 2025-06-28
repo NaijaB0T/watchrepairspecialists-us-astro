@@ -1,0 +1,111 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import specialistsDataRaw from '../../data/specialists_enriched.json';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/components/ui/card';
+import { Button } from '../../components/components/ui/button';
+
+interface Specialist {
+  unique_id: string;
+  name: string;
+  website: string | null;
+  phone: string;
+  rating: number | null;
+  review_count: number | null;
+  image_url: string;
+  address: {
+    street_address: string;
+    city: string;
+    state: string;
+    postal_code: string | null;
+    country: string;
+  } | null;
+  google_maps_url: string;
+  nearby_specialists_ids: string[];
+  description: string;
+}
+
+export async function getStaticPaths() {
+  const paths = Object.keys(specialistsDataRaw as unknown as Record<string, Specialist>).map((id) => ({
+    params: { id },
+  }));
+  return paths;
+}
+
+const { id } = Astro.params as { id: string };
+const specialistsData = specialistsDataRaw as unknown as Record<string, Specialist>;
+const specialist = specialistsData[id];
+
+if (!specialist) {
+  return Astro.redirect('/specialists');
+}
+---
+
+<Layout title={specialist.name}>
+  <main class="container mx-auto px-4 py-8">
+    <Card className="w-full max-w-3xl mx-auto">
+      <CardHeader>
+        <img src={specialist.image_url} alt={specialist.name} class="w-full h-64 object-cover rounded-lg mb-6" />
+        <CardTitle className="text-4xl font-bold">{specialist.name}</CardTitle>
+        <p class="text-muted-foreground pt-2">{specialist.description}</p>
+      </CardHeader>
+      <CardContent>
+        {specialist.address && (
+          <p class="text-lg mb-2">
+            {specialist.address.street_address}, {specialist.address.city}, {specialist.address.state}
+            {specialist.address.postal_code ? `, ${specialist.address.postal_code}` : ''} {specialist.address.country}
+          </p>
+        )}
+        {specialist.phone && <p class="text-lg mb-2">Phone: {specialist.phone}</p>}
+        {(specialist.rating || specialist.review_count) && (
+          <div class="flex items-center mb-4">
+            <span class="text-yellow-500 text-xl mr-2">⭐</span>
+            <span class="text-lg">
+              {specialist.rating ? specialist.rating : 'N/A'} ({specialist.review_count ? specialist.review_count : '0'} reviews)
+            </span>
+          </div>
+        )}
+        <div class="flex flex-col space-y-2 mt-4">
+          {specialist.website && (
+            <Button asChild variant="link" className="justify-start p-0 h-auto text-lg">
+              <a href={specialist.website} target="_blank" rel="noopener noreferrer">{specialist.website}</a>
+            </Button>
+          )}
+          <Button asChild variant="link" className="justify-start p-0 h-auto text-lg">
+            <a href={specialist.google_maps_url} target="_blank" rel="noopener noreferrer">View on Google Maps</a>
+          </Button>
+        </div>
+
+        {specialist.nearby_specialists_ids && specialist.nearby_specialists_ids.length > 0 && (
+          <div class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4">Nearby Specialists</h2>
+            <div class="space-y-6">
+              {specialist.nearby_specialists_ids.map((nearbyId: string) => {
+                const nearbySpecialist = specialistsData[nearbyId];
+                if (!nearbySpecialist) return null;
+                return (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-xl">
+                        <a href={`/specialists/${nearbySpecialist.unique_id}`} class="hover:underline">
+                          {nearbySpecialist.name}
+                        </a>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p class="text-muted-foreground mb-3">{nearbySpecialist.description}</p>
+                      {nearbySpecialist.address && (
+                        <p class="text-sm">
+                          {nearbySpecialist.address.street_address}, {nearbySpecialist.address.city}, {nearbySpecialist.address.state}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  </main>
+</Layout>

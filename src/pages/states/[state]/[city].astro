@@ -1,0 +1,91 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import specialistsDataRaw from '../../../data/specialists_enriched.json';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/components/ui/card';
+import { Button } from '../../../components/components/ui/button';
+
+interface Specialist {
+  unique_id: string;
+  name: string;
+  website: string | null;
+  phone: string;
+  rating: number | null;
+  review_count: number | null;
+  image_url: string;
+  address: {
+    street_address: string;
+    city: string;
+    state: string;
+    postal_code: string | null;
+    country: string;
+  } | null;
+  google_maps_url: string;
+  nearby_specialists_ids: string[];
+  description: string;
+}
+
+const specialistsData = specialistsDataRaw as unknown as Record<string, Specialist>;
+
+export async function getStaticPaths() {
+  const paths = Object.values(specialistsDataRaw as unknown as Record<string, Specialist>)
+    .filter(specialist => specialist.address?.state && specialist.address?.city)
+    .map((specialist) => {
+      return {
+        params: {
+          state: specialist.address!.state.toLowerCase().replace(/\s/g, '-'),
+          city: specialist.address!.city.toLowerCase().replace(/\s/g, '-'),
+        },
+      };
+    });
+  return paths;
+}
+
+const { state, city } = Astro.params;
+const stateName = state.replace(/-/g, ' ');
+const cityName = city.replace(/-/g, ' ');
+
+const specialistsInCity = Object.values(specialistsData).filter(
+  (specialist) =>
+    specialist.address?.state.toLowerCase().replace(/\s/g, '-') === state &&
+    specialist.address?.city.toLowerCase().replace(/\s/g, '-') === city
+);
+---
+
+<Layout title={`Watch Repair Specialists in ${cityName}, ${stateName}`}>
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl text-center">
+      Best Watch Repair Specialists in {cityName}, {stateName}
+    </h1>
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {specialistsInCity.map((specialist) => (
+        <Card>
+          <CardHeader>
+            <img src={specialist.image_url} alt={specialist.name} class="w-full h-48 object-cover rounded-t-lg" />
+            <CardTitle>{specialist.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p class="text-muted-foreground text-sm mb-4">{specialist.description}</p>
+            {specialist.address && (
+              <p class="text-sm">
+                {specialist.address.street_address}, {specialist.address.city}, {specialist.address.state}
+                {specialist.address.postal_code ? `, ${specialist.address.postal_code}` : ''}
+              </p>
+            )}
+            {specialist.phone && <p class="text-sm">Phone: {specialist.phone}</p>}
+            <div class="flex items-center mt-2">
+              <span class="text-yellow-500 text-sm mr-1">⭐</span>
+              <span class="text-sm">
+                {specialist.rating ? specialist.rating : 'N/A'} ({specialist.review_count ? specialist.review_count : '0'} reviews)
+              </span>
+            </div>
+            <div class="mt-4">
+              <Button asChild variant="link" className="p-0 h-auto text-sm">
+                <a href={specialist.google_maps_url} target="_blank" rel="noopener noreferrer">View on Google Maps</a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,72 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import specialistsDataRaw from '../../data/specialists_enriched.json';
+
+interface Specialist {
+  unique_id: string;
+  name: string;
+  website: string | null;
+  phone: string;
+  rating: number | null;
+  review_count: number | null;
+  image_url: string;
+  address: {
+    street_address: string;
+    city: string;
+    state: string;
+    postal_code: string | null;
+    country: string;
+  } | null;
+  google_maps_url: string;
+  nearby_specialists_ids: string[];
+  description: string;
+}
+
+const specialistsData = specialistsDataRaw as unknown as Record<string, Specialist>;
+
+export async function getStaticPaths() {
+  const states = new Set<string>();
+  for (const key in specialistsDataRaw) {
+    const specialist = (specialistsDataRaw as unknown as Record<string, Specialist>)[key];
+    if (specialist.address?.state) {
+      states.add(specialist.address.state);
+    }
+  }
+
+  const paths = Array.from(states).map((state) => ({
+    params: { state: state.toLowerCase().replace(/\s/g, '-') },
+  }));
+
+  return paths;
+}
+
+const { state } = Astro.params;
+const stateName = state.replace(/-/g, ' ');
+
+const cities = new Set<string>();
+for (const key in specialistsDataRaw) {
+  const specialist = (specialistsDataRaw as unknown as Record<string, Specialist>)[key];
+  if (specialist.address?.state.toLowerCase().replace(/\s/g, '-') === state) {
+    if(specialist.address.city) {
+        cities.add(specialist.address.city);
+    }
+  }
+}
+
+const sortedCities = Array.from(cities).sort();
+---
+
+<Layout title={`Watch Repair Specialists in ${stateName}`}>
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl text-center">
+      Watch Repair Specialists in {stateName}
+    </h1>
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {sortedCities.map((city) => (
+        <a href={`/states/${stateName.toLowerCase().replace(/\s/g, '-')}/${city.toLowerCase().replace(/\s/g, '-')}`} class="block p-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:bg-muted/50 transition-colors">
+          <h3 class="text-xl font-semibold">{city}</h3>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>
